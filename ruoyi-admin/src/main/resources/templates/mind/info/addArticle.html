@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+
+    <meta charset="utf-8"/>
+    <link href="../../../static/editormd/css/editormd.css" th:href="@{/editormd/css/editormd.css}" rel="stylesheet"/>
+    <link href="../../../static/editormd/css/style.css" th:href="@{/editormd/css/style.css}" rel="stylesheet"/>
+
+</head>
+
+
+<body>
+<div id="layout">
+    <header>
+        <h1 th:text="${name}"></h1>
+    </header>
+    <form name="mdEditorForm" method="post">
+        <input id="id" name="id" th:value="${id}" hidden>
+        <div id="test-editormd">
+            <textarea style="display:none;" name="content" id="content" th:text="${content}"></textarea>
+        </div>
+        <div class="col-sm-offset-5 col-sm-10">
+
+            <button class="btn btn-success" value="提交"
+                    style=" -webkit-appearance: none; border-radius: 0;margin-left:5%;" onclick="submitInfo()">提交
+            </button>
+        </div>
+
+    </form>
+
+</div>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/editormd/js/editormd.js}"></script>
+<script th:src="@{/editormd/js/uploadImg.js}"></script>
+<script th:inline="javascript">
+    var testEditor;
+
+    $(function () {
+        testEditor = editormd("test-editormd", {
+            imageUpload : true,
+            imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL : "/articleInfo/file/upload",
+            onload : function() {
+                //支持复制，粘贴，拖拽上传文件。
+                initPasteDragImg(this);//必须
+
+            },
+            //...
+            width: "90%",
+            height: 840,
+            path: "../../editormd/lib/",
+            saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+            emoji: true,
+            theme: "default | dark",//工具栏主题
+            previewTheme: "default | dark",//预览主题
+            editorTheme: "default | dark",//编辑主题
+            tex: true,                   // 科学公式TeX语言支持，默认关闭
+            flowChart: true,             // 流程图支持，默认关闭
+            sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+
+        });
+
+        /*
+        // or
+        testEditor = editormd({
+            id      : "test-editormd",
+            width   : "90%",
+            height  : 640,
+            path    : "../lib/"
+        });
+        */
+    });
+
+    function submitInfo() {
+        var content = $("#content").val();
+        var id = $("#id").val();
+        $.ajax({
+            url: "/articleInfo/editArticle",
+            type: 'post',
+            async: false,
+            data: {
+                id: id,
+                content: content
+            },
+            dataType: "json",
+            beforeSend : function(){
+                $.modal.loading("正在处理中，请稍候...");
+            },
+            success: function (result) {
+                if (result.code == 500) {
+                    $.modal.msgError(result.msg);
+
+                } else {
+                    $.modal.msgSuccess(result.msg);
+
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

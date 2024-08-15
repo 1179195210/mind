@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.controller.mind.mapper.NoteInfoMapper">
+    
+    <resultMap type="NoteInfo" id="NoteInfoResult">
+        <result property="id"    column="id"    />
+        <result property="noteName"    column="note_name"    />
+        <result property="noteType"    column="note_type"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createUser"    column="create_user"    />
+    </resultMap>
+
+    <sql id="selectNoteInfoVo">
+        select id, note_name, note_type, remark, create_time, update_time, create_user, is_share from note_info
+    </sql>
+
+    <select id="selectNoteInfoList" parameterType="NoteInfo" resultMap="NoteInfoResult">
+        <include refid="selectNoteInfoVo"/>
+        <where>  
+            <if test="noteName != null  and noteName != ''"> and note_name like concat('%', #{noteName}, '%')</if>
+            <if test="noteType != null  and noteType != ''"> and note_type = #{noteType}</if>
+            <if test="isShare != null  and isShare != ''"> and is_share = #{isShare}</if>
+            <if test="createUser != null  and createUser != '' and createUser != '思维'"> and create_user = #{createUser}</if>
+        </where>
+        order by update_time DESC
+    </select>
+
+
+    <select id="selectNoteInfoMainList" parameterType="NoteInfo" resultMap="NoteInfoResult">
+        <include refid="selectNoteInfoVo"/>
+        <where>
+            <if test="noteName != null  and noteName != ''"> and note_name like concat('%', #{noteName}, '%')</if>
+            <if test="noteType != null  and noteType != ''"> and note_type = #{noteType}</if>
+            <if test="isShare != null  and isShare != ''"> and is_share = #{isShare}</if>
+        </where>
+    </select>
+
+
+    <select id="selectNoteInfoById" parameterType="Long" resultMap="NoteInfoResult">
+        <include refid="selectNoteInfoVo"/>
+        where id = #{id}
+    </select>
+
+        
+    <insert id="insertNoteInfo" parameterType="NoteInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into note_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="noteName != null">note_name,</if>
+            <if test="noteType != null">note_type,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createUser != null">create_user,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="noteName != null">#{noteName},</if>
+            <if test="noteType != null">#{noteType},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createUser != null">#{createUser},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNoteInfo" parameterType="NoteInfo">
+        update note_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="noteName != null">note_name = #{noteName},</if>
+            <if test="noteType != null">note_type = #{noteType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createUser != null">create_user = #{createUser},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteNoteInfoById" parameterType="Long">
+        delete from note_info where id = #{id}
+    </delete>
+
+    <delete id="deleteNoteInfoByIds" parameterType="String">
+        delete from note_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
